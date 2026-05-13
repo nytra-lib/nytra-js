@@ -135,7 +135,7 @@ export class Writer {
     }
 
     writeBigInt(value: bigint): this {
-        let bytes = bigintToUint8ArrayLE(value);
+        const bytes = bigintToUint8ArrayLE(value);
         this.writeUINT16(bytes.length);
         this.writeBytes(bytes);
         return this;
