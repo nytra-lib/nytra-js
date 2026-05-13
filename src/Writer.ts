@@ -1,3 +1,5 @@
+import {TYPE_EXTENSION} from "./Types.ts";
+
 const LITTLE_ENDIAN = true;
 export class Writer {
     static DEFAULT_SIZE = 1024;
@@ -43,6 +45,15 @@ export class Writer {
 
         this.#buffer = newBuffer;
         this.#view = new DataView(newBuffer);
+    }
+
+
+    writeType(type: number) {
+        if(type <= 255) {
+            return this.writeUint8(type);
+        }
+        this.writeUint8(TYPE_EXTENSION);
+        return this.writeUint16(type);
     }
 
     writeInt8(value: number): this {

@@ -10,11 +10,7 @@ export type TypeHandler<T = unknown> = {
 
 
 export class Registry {
-    /**
-     *
-     * @type {Map<number, TypeHandler>}
-     */
-    #registry = new Map();
+    #registry: Map<number, TypeHandler<any>> = new Map();
 
 
 

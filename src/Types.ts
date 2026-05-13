@@ -22,6 +22,7 @@ export const
 
 
     TYPE_BIGINT = 40,
+    TYPE_TYPED_ARRAY = 50,
     TYPE_EXTENSION = 127,
 
 

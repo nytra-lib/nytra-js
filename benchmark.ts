@@ -2,7 +2,7 @@
 import {Player} from "./example/Player.js";
 import {Nytra} from "./src/Nytra.ts";
 import MSGPACK from "@msgpack/msgpack";
-import {TYPE_ARRAY, TYPE_BOOLEAN, TYPE_STRING, TYPE_UINT8} from "./src/Types.ts";
+import {TYPE_ARRAY, TYPE_BOOLEAN, TYPE_STRING, TYPE_TYPED_ARRAY, TYPE_UINT8} from "./src/Types.ts";
 
 
 
@@ -19,7 +19,7 @@ class DTO  {
     @Nytra.registerField(2, TYPE_BOOLEAN)
     isActive!: boolean;
 
-    @Nytra.registerField(3, TYPE_ARRAY)
+    @Nytra.registerField(3, TYPE_TYPED_ARRAY, {typedArrayTargetTypeId: TYPE_UINT8})
     scores!: number[];
 
     @Nytra.registerField(4, TYPE_ARRAY)
@@ -49,17 +49,16 @@ compareSize(player)
 
 
 
-const someDeepObject = {
+const someDeepObject : DTO = {
     name: "John Doe",
     age: 30,
     isActive: true,
     scores: [85, 90, 78],
     tags: ["developer", "gamer", "blogger"]
-} as DTO;
+};
 
 console.log('Comparing size of some plain object', someDeepObject);
 compareSize(someDeepObject, Nytra.getTypeIdForClass(DTO));
-
 
 function doTask(task: () => void, times = 1_000_000) : string {
      performance.mark('start');

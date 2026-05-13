@@ -2,12 +2,27 @@ import {Reader} from "./Reader.ts";
 import {Encoder, Registry, type TypeHandler} from "./Registry.ts";
 import {Writer} from "./Writer.ts";
 import {
-    TYPE_ARRAY, TYPE_BIGINT, TYPE_BOOLEAN,
-    TYPE_EXTENSION, TYPE_FLOAT32, TYPE_FLOAT64, TYPE_INT16, TYPE_INT32, TYPE_INT64, TYPE_INT8, TYPE_JSON,
-    TYPE_NULL, TYPE_OBJECT,
+    TYPE_ARRAY,
+    TYPE_BIGINT,
+    TYPE_BOOLEAN,
+    TYPE_EXTENSION,
+    TYPE_FLOAT32,
+    TYPE_FLOAT64,
+    TYPE_INT16,
+    TYPE_INT32,
+    TYPE_INT64,
+    TYPE_INT8,
+    TYPE_JSON,
+    TYPE_NULL,
+    TYPE_OBJECT,
     TYPE_STRING,
     TYPE_STRING_16_INTERNAL,
-    TYPE_STRING_32_INTERNAL, TYPE_UINT16, TYPE_UINT32, TYPE_UINT64, TYPE_UINT8
+    TYPE_STRING_32_INTERNAL,
+    TYPE_TYPED_ARRAY,
+    TYPE_UINT16,
+    TYPE_UINT32,
+    TYPE_UINT64,
+    TYPE_UINT8
 } from "./Types.ts";
 
 
@@ -20,9 +35,19 @@ const MIN_INT_16 = -(2 ** 15);
 const MIN_INT_8 = -(2 ** 8);
 
 
+type TypedArrayRegisterFieldOptions = {
+    typedArrayTargetTypeId?: number | Function;
+};
+
+
 export type RegisterFieldOptions = {
     nullable?: boolean;
-}
+}  & TypedArrayRegisterFieldOptions;
+
+
+
+
+
 
 type RequiredRegisterFieldOptions = Required<RegisterFieldOptions>;
 
@@ -70,6 +95,18 @@ function createDecoder<T extends Function>(cls: T) {
                 meta.targetTypeId = found ? found.typeId : TYPE_JSON
             }
             let type = meta.targetTypeId;
+            if (type === TYPE_TYPED_ARRAY) {
+                const targetType = typeof meta.options.typedArrayTargetTypeId === 'function' ? classMetaStore.get(meta.options.typedArrayTargetTypeId)?.typeId : meta.options.typedArrayTargetTypeId
+                const size = reader.readUINT32();
+                const end = reader.offset + size;
+                let data = []
+
+                while (reader.offset < end) {
+                    data.push(Nytra.decode(reader, targetType === TYPE_STRING ? null : targetType));
+                }
+                obj[name] = data;
+                continue;
+            }
             if (type === TYPE_STRING) {
                 type = reader.readType();
             }
@@ -83,11 +120,47 @@ function createDecoder<T extends Function>(cls: T) {
 }
 
 
+function createTypedArrayEncoder(targetType: number | Function): Encoder {
+    if (typeof targetType === 'function') {
+        const meta = classMetaStore.get(targetType);
+        if (!meta) {
+            throw new Error(`Cannot convert object type ${targetType}`);
+        }
+        targetType = meta ? meta.typeId : TYPE_JSON;
+        meta.typeId;
+
+    }
+
+    return function (data: unknown, writer: Writer | null) {
+        if (!Array.isArray(data)) {
+            throw new Error('Data must be an array');
+        }
+        if (writer === null) {
+            writer = new Writer();
+        }
+        const arr = data as unknown[];
+        const startIndex = writer.offset;
+
+        writer.setOffset(startIndex + 4); // reserve space for length
+
+        for (let value of arr) {
+            Nytra.encode(value, targetType, false, writer);
+        }
+        const endIndex = writer.offset;
+        writer.setOffset(startIndex);
+        writer.writeUint32(endIndex - startIndex - 4);
+        writer.setOffset(endIndex);
+
+        return writer.toUint8Array();
+    };
+
+}
+
 function createEncoder<T extends Function>(cls: T) {
     const meta = classMetaStore.get(cls! as unknown as Function)!;
     type CompiledField<T> = {
         name: keyof T,
-        encode: null | ((value: any, writer: Writer) => Uint8Array),
+        encode: null | Encoder,
         options: RequiredRegisterFieldOptions
     }
     const cachedEncoders: CompiledField<T>[] = [];
@@ -117,7 +190,13 @@ function createEncoder<T extends Function>(cls: T) {
 
                 // Encoder-Funktion vorgebunden
                 let encodeFn: Encoder<any>;
-                if (typeId < 255) {
+                if (typeId === TYPE_TYPED_ARRAY) {
+                    if (typeof fieldMeta.options.typedArrayTargetTypeId === 'function') {
+                        const typeId = classMetaStore.get(fieldMeta.options.typedArrayTargetTypeId)?.typeId;
+                        fieldMeta.options.typedArrayTargetTypeId = typeId!;
+                    }
+                    encodeFn = createTypedArrayEncoder(fieldMeta.options.typedArrayTargetTypeId as number)
+                } else if (typeId < 255) {
                     encodeFn = (value, writer) => Nytra.encode(value, typeId, false, writer);
                 } else {
                     encodeFn = CustomRegistry.getEncoder(typeId);
@@ -164,14 +243,20 @@ const CustomRegistry = new Registry();
 
 
 export class Nytra {
-
-
-    static registerField(position: number, targetTypeId?: number | Function, options: RegisterFieldOptions = {}) {
+    static registerField(
+        position: number,
+        targetTypeId?: number | Function,
+        options?: RegisterFieldOptions
+    ) {
         const defaultOpts: RequiredRegisterFieldOptions = {
-            nullable: false
+            nullable: false,
+            typedArrayTargetTypeId: -1,
         }
 
         Object.assign(defaultOpts, options);
+        if(targetTypeId === TYPE_TYPED_ARRAY && defaultOpts.typedArrayTargetTypeId === -1) {
+            throw new Error('You must provide options.typedArrayTargetTypeId if you want to register a typed array field')
+        }
 
         return function (v: undefined, ctx: ClassFieldDecoratorContext) {
             if (ctx.private) {
@@ -549,6 +634,17 @@ export class Nytra {
             }
             case TYPE_FLOAT32: {
                 return reader.readFloat32();
+            }
+
+            case TYPE_TYPED_ARRAY: {
+                const type = reader.readType();
+                const len = reader.readUINT32();
+                const end = reader.offset + len;
+                const targetArray = [];
+                while (reader.offset < end) {
+                    targetArray.push(this.decode(reader, type));
+                }
+                return targetArray;
             }
 
 
