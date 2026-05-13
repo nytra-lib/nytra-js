@@ -147,7 +147,7 @@ function createTypedArrayEncoder(targetType: number | Function): Encoder {
         }
         const endIndex = writer.offset;
         writer.setOffset(startIndex);
-        writer.writeUint32(endIndex - startIndex - 4);
+        writer.writeUINT32(endIndex - startIndex - 4);
         writer.setOffset(endIndex);
 
         return writer.toUint8Array();
@@ -406,25 +406,25 @@ export class Nytra {
             const bytes = this.#TEXT_ENCODER.encode(str);
             const len = bytes.length;
             if (len <= 127) {
-                writer.writeUint8(128 + len);
+                writer.writeUINT8(128 + len);
                 writer.writeBytes(bytes);
                 return writer.toUint8Array()
             }
             if (len <= 65535) {
-                writer.writeUint8(TYPE_STRING_16_INTERNAL);
-                writer.writeUint16(len);
+                writer.writeUINT8(TYPE_STRING_16_INTERNAL);
+                writer.writeUINT16(len);
                 writer.writeBytes(bytes);
                 return writer.toUint8Array()
             }
-            writer.writeUint8(TYPE_STRING_32_INTERNAL);
-            writer.writeUint32(len);
+            writer.writeUINT8(TYPE_STRING_32_INTERNAL);
+            writer.writeUINT32(len);
             writer.writeBytes(bytes);
             return writer.toUint8Array()
         }
 
         switch (type) {
             case TYPE_NULL:
-                writer.writeUint8(TYPE_NULL);
+                writer.writeUINT8(TYPE_NULL);
                 return writer.toUint8Array();
 
             case TYPE_ARRAY: {
@@ -443,7 +443,7 @@ export class Nytra {
                 }
                 const endIndex = writer.offset;
                 writer.setOffset(startIndex);
-                writer.writeUint32(endIndex - startIndex - 4);
+                writer.writeUINT32(endIndex - startIndex - 4);
                 writer.setOffset(endIndex);
                 return writer.toUint8Array();
             }
@@ -465,7 +465,7 @@ export class Nytra {
                 }
                 const endIndex = writer.offset;
                 writer.setOffset(startIndex);
-                writer.writeUint32(endIndex - startIndex - 4);
+                writer.writeUINT32(endIndex - startIndex - 4);
                 writer.setOffset(endIndex);
                 return writer.toUint8Array();
             }
@@ -473,63 +473,63 @@ export class Nytra {
             case TYPE_UINT8: {
                 if (withType)
                     writer.writeType(TYPE_UINT8);
-                writer.writeUint8(data as number);
+                writer.writeUINT8(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_UINT16: {
                 if (withType)
                     writer.writeType(TYPE_UINT16);
-                writer.writeUint16(data as number);
+                writer.writeUINT16(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_UINT32: {
                 if (withType)
                     writer.writeType(TYPE_UINT32);
-                writer.writeUint32(data as number);
+                writer.writeUINT32(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_UINT64: {
                 if (withType)
                     writer.writeType(TYPE_UINT64);
-                writer.writeUint64(BigInt(data as number | bigint));
+                writer.writeUINT64(BigInt(data as number | bigint));
                 return writer.toUint8Array();
             }
 
             case TYPE_INT8: {
                 if (withType)
                     writer.writeType(TYPE_INT8);
-                writer.writeInt8(data as number);
+                writer.writeINT8(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_INT16: {
                 if (withType)
                     writer.writeType(TYPE_INT16);
-                writer.writeInt16(data as number);
+                writer.writeINT16(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_INT32: {
                 if (withType)
                     writer.writeType(TYPE_INT32);
-                writer.writeInt32(data as number);
+                writer.writeINT32(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_INT64: {
                 if (withType)
                     writer.writeType(TYPE_INT64);
-                writer.writeInt64(BigInt(data as number | bigint));
+                writer.writeINT64(BigInt(data as number | bigint));
                 return writer.toUint8Array();
             }
 
             case TYPE_BOOLEAN: {
                 if (withType)
                     writer.writeType(TYPE_BOOLEAN);
-                writer.writeUint8((data as boolean) ? 1 : 0);
+                writer.writeUINT8((data as boolean) ? 1 : 0);
                 return writer.toUint8Array();
             }
 
@@ -540,13 +540,13 @@ export class Nytra {
             case TYPE_FLOAT32: {
                 if (withType)
                     writer.writeType(TYPE_FLOAT32);
-                writer.writeFloat32(data as number);
+                writer.writeFLOAT32(data as number);
                 return writer.toUint8Array();
             }
             case TYPE_FLOAT64: {
                 if (withType)
                     writer.writeType(TYPE_FLOAT64);
-                writer.writeFloat64(data as number);
+                writer.writeFLOAT64(data as number);
                 return writer.toUint8Array();
             }
 
@@ -628,10 +628,10 @@ export class Nytra {
                 return bigintToSafeNumber(reader.readINT64());
             }
             case TYPE_FLOAT64: {
-                return reader.readFloat64();
+                return reader.readFLOAT64();
             }
             case TYPE_FLOAT32: {
-                return reader.readFloat32();
+                return reader.readFLOAT32();
             }
 
 

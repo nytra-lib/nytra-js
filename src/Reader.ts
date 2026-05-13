@@ -83,13 +83,13 @@ export class Reader {
         return this.#dataView.getBigInt64(offset, LITTLE_ENDIAN);
     }
 
-    readFloat32() {
+    readFLOAT32() {
         const offset = this.#ind;
         this.#ind += 4;
         return this.#dataView.getFloat32(offset, LITTLE_ENDIAN);
     }
 
-    readFloat64() {
+    readFLOAT64() {
         const offset = this.#ind;
         this.#ind += 8;
         return this.#dataView.getFloat64(offset, LITTLE_ENDIAN);

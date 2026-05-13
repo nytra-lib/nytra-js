@@ -3,7 +3,6 @@ import {TYPE_EXTENSION} from "./Types.ts";
 const LITTLE_ENDIAN = true;
 export class Writer {
     static DEFAULT_SIZE = 1024;
-    static readonly #encoder = new TextEncoder();
     #buffer: ArrayBuffer;
     #view: DataView;
     #offset: number = 0;
@@ -50,34 +49,34 @@ export class Writer {
 
     writeType(type: number) {
         if(type <= 255) {
-            return this.writeUint8(type);
+            return this.writeUINT8(type);
         }
-        this.writeUint8(TYPE_EXTENSION);
-        return this.writeUint16(type);
+        this.writeUINT8(TYPE_EXTENSION);
+        return this.writeUINT16(type);
     }
 
-    writeInt8(value: number): this {
+    writeINT8(value: number): this {
         this.ensureCapacity(1);
         this.#view.setInt8(this.#offset, value);
         this.#offset += 1;
         return this;
     }
 
-    writeInt16(value: number): this {
+    writeINT16(value: number): this {
         this.ensureCapacity(2);
         this.#view.setInt16(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 2;
         return this;
     }
 
-    writeInt32(value: number): this {
+    writeINT32(value: number): this {
         this.ensureCapacity(4);
         this.#view.setInt32(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 4;
         return this;
     }
 
-    writeInt64(value: bigint): this {
+    writeINT64(value: bigint): this {
         this.ensureCapacity(8);
         this.#view.setBigInt64(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 8;
@@ -85,28 +84,28 @@ export class Writer {
     }
 
 
-    writeUint8(value: number): this {
+    writeUINT8(value: number): this {
         this.ensureCapacity(1);
         this.#view.setUint8(this.#offset, value);
         this.#offset += 1;
         return this;
     }
 
-    writeUint16(value: number): this {
+    writeUINT16(value: number): this {
         this.ensureCapacity(2);
         this.#view.setUint16(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 2;
         return this;
     }
 
-    writeUint32(value: number): this {
+    writeUINT32(value: number): this {
         this.ensureCapacity(4);
         this.#view.setUint32(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 4;
         return this;
     }
 
-    writeUint64(value: bigint): this {
+    writeUINT64(value: bigint): this {
         this.ensureCapacity(8);
         this.#view.setBigUint64(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 8;
@@ -114,14 +113,14 @@ export class Writer {
     }
 
 
-    writeFloat32(value: number): this {
+    writeFLOAT32(value: number): this {
         this.ensureCapacity(4);
         this.#view.setFloat32(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 4;
         return this;
     }
 
-    writeFloat64(value: number): this {
+    writeFLOAT64(value: number): this {
         this.ensureCapacity(8);
         this.#view.setFloat64(this.#offset, value, LITTLE_ENDIAN);
         this.#offset += 8;
@@ -137,7 +136,7 @@ export class Writer {
 
     writeBigInt(value: bigint): this {
         let bytes = bigintToUint8ArrayLE(value);
-        this.writeUint16(bytes.length);
+        this.writeUINT16(bytes.length);
         this.writeBytes(bytes);
         return this;
     }
