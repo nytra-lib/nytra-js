@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "nytra",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A javascript ES6 Decorator driven library to encode/decode javascript objects to/from binary optimized buffers to reduce payload on network",
   "license": "MIT",
   "author": {
