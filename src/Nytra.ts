@@ -5,7 +5,6 @@ import {
     TYPE_ARRAY,
     TYPE_BIGINT,
     TYPE_BOOLEAN,
-    TYPE_EXTENSION,
     TYPE_FLOAT32,
     TYPE_FLOAT64,
     TYPE_INT16,
@@ -633,17 +632,6 @@ export class Nytra {
             }
             case TYPE_FLOAT32: {
                 return reader.readFloat32();
-            }
-
-            case TYPE_TYPED_ARRAY: {
-                const type = reader.readType();
-                const len = reader.readUINT32();
-                const end = reader.offset + len;
-                const targetArray = [];
-                while (reader.offset < end) {
-                    targetArray.push(this.decode(reader, type));
-                }
-                return targetArray;
             }
 
 
