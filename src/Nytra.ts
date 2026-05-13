@@ -393,8 +393,7 @@ export class Nytra {
                 throw new Error('Unknown type:' + type);
             }
             if (withType) {
-                writer.writeUint8(TYPE_EXTENSION);
-                writer.writeUint16(type);
+                writer.writeType(type);
             }
 
 
@@ -435,7 +434,7 @@ export class Nytra {
                 }
                 const arr = data as unknown[];
                 if (withType)
-                    writer.writeUint8(TYPE_ARRAY);
+                    writer.writeType(TYPE_ARRAY);
                 const startIndex = writer.offset;
 
                 writer.setOffset(startIndex + 4); // reserve space for length
@@ -456,7 +455,7 @@ export class Nytra {
                 }
                 const obj = data as object;
                 if (withType)
-                    writer.writeUint8(TYPE_OBJECT);
+                    writer.writeType(TYPE_OBJECT);
                 const startIndex = writer.offset;
                 writer.setOffset(startIndex + 4);
 
@@ -474,63 +473,63 @@ export class Nytra {
 
             case TYPE_UINT8: {
                 if (withType)
-                    writer.writeUint8(TYPE_UINT8);
+                    writer.writeType(TYPE_UINT8);
                 writer.writeUint8(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_UINT16: {
                 if (withType)
-                    writer.writeUint8(TYPE_UINT16);
+                    writer.writeType(TYPE_UINT16);
                 writer.writeUint16(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_UINT32: {
                 if (withType)
-                    writer.writeUint8(TYPE_UINT32);
+                    writer.writeType(TYPE_UINT32);
                 writer.writeUint32(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_UINT64: {
                 if (withType)
-                    writer.writeUint8(TYPE_UINT64);
+                    writer.writeType(TYPE_UINT64);
                 writer.writeUint64(BigInt(data as number | bigint));
                 return writer.toUint8Array();
             }
 
             case TYPE_INT8: {
                 if (withType)
-                    writer.writeUint8(TYPE_INT8);
+                    writer.writeType(TYPE_INT8);
                 writer.writeInt8(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_INT16: {
                 if (withType)
-                    writer.writeUint8(TYPE_INT16);
+                    writer.writeType(TYPE_INT16);
                 writer.writeInt16(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_INT32: {
                 if (withType)
-                    writer.writeUint8(TYPE_INT32);
+                    writer.writeType(TYPE_INT32);
                 writer.writeInt32(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_INT64: {
                 if (withType)
-                    writer.writeUint8(TYPE_INT64);
+                    writer.writeType(TYPE_INT64);
                 writer.writeInt64(BigInt(data as number | bigint));
                 return writer.toUint8Array();
             }
 
             case TYPE_BOOLEAN: {
                 if (withType)
-                    writer.writeUint8(TYPE_BOOLEAN);
+                    writer.writeType(TYPE_BOOLEAN);
                 writer.writeUint8((data as boolean) ? 1 : 0);
                 return writer.toUint8Array();
             }
@@ -541,20 +540,20 @@ export class Nytra {
 
             case TYPE_FLOAT32: {
                 if (withType)
-                    writer.writeUint8(TYPE_FLOAT32);
+                    writer.writeType(TYPE_FLOAT32);
                 writer.writeFloat32(data as number);
                 return writer.toUint8Array();
             }
             case TYPE_FLOAT64: {
                 if (withType)
-                    writer.writeUint8(TYPE_FLOAT64);
+                    writer.writeType(TYPE_FLOAT64);
                 writer.writeFloat64(data as number);
                 return writer.toUint8Array();
             }
 
             case TYPE_BIGINT: {
                 if (withType)
-                    writer.writeUint8(TYPE_BIGINT);
+                    writer.writeType(TYPE_BIGINT);
                 writer.writeBigInt(BigInt(data as number | bigint));
                 return writer.toUint8Array();
             }
