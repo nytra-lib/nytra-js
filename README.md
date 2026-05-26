@@ -101,6 +101,21 @@ If you see decorator typing/runtime issues, enable modern decorators + metadata 
 
 > Nytra decorators use the new standard decorator context APIs (`ClassDecoratorContext`, `ClassFieldDecoratorContext`).
 
+For projecty relying on legacy TypeScript decorators, you can use the exported `NytraExperimental` class wrapping the new TC30 Decorators.
+
+```ts
+import {NytraExperimental, Types as T} from "nytra";
+
+
+@NytraExperimental.registerClass(10000)
+export class PageStats {
+    @NytraExperimental.registerField(0, T.TYPE_STRING)
+    version: string;
+    @NytraExperimental.registerField(1, T.TYPE_UINT32)
+    registrationCount: number;
+}
+```
+
 ## License
 
 MIT
