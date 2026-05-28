@@ -15,7 +15,6 @@ class Account {
     }
 }
 
-
 test("Handle Account with email", () => {
     const account = new Account("test");
     account.email = 'test@example.com';

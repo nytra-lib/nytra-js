@@ -3,6 +3,7 @@ import {Nytra} from "./Nytra.ts"
 
 
 type MetaData = Record<string | symbol, any>;
+type Constructor<T = object> = new (...args: any[]) => T;
 
 const metaData: Map<unknown, MetaData> = new Map();
 
@@ -22,7 +23,7 @@ export class NytraExperimental {
     static registerClass(index: number) {
 
         const realDecorator = Nytra.registerClass(index);
-        return function <T extends Function>(target: T) {
+        return function <T extends Constructor>(target: T) {
             const meta = NytraExperimental.getMetaData(target);
             realDecorator(target, {
 

@@ -46,7 +46,7 @@ export type RegisterFieldOptions = {
 
 
 
-
+type Constructor<T = object> = new (...args: any[]) => T;
 
 type RequiredRegisterFieldOptions = Required<RegisterFieldOptions>;
 
@@ -280,7 +280,7 @@ export class Nytra {
             throw new Error('typeId must be in range of 256 and 65535');
         }
 
-        return function <T extends Function>(decoratedClass: T, ctx: ClassDecoratorContext) {
+        return function <T extends Constructor>(decoratedClass: T, ctx: ClassDecoratorContext) {
             const metadata = ctx.metadata as Record<string | symbol, any>;
             const fields = metadata[SYMBOL_FIELDS] ?
                 [...metadata[SYMBOL_FIELDS].entries()].sort(
@@ -375,6 +375,14 @@ export class Nytra {
 
 
     static #TEXT_ENCODER = new TextEncoder();
+
+    static getFieldsFromRegisteredClass<T extends Constructor>(ctor: T) {
+        const classMeta = classMetaStore.get(ctor);
+        if (!classMeta) {
+            throw new Error('Class not registered');
+        }
+        return classMeta.fields;
+    }
 
     static encode(data: unknown, type: number | null = null, withType: boolean = true, writer: Writer | null = null): Uint8Array {
         if (writer === null) {
