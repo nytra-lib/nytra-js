@@ -7,7 +7,7 @@ const {
     TYPE_FLOAT32, TYPE_FLOAT64, TYPE_INT16, TYPE_INT32, TYPE_INT64, TYPE_INT8, TYPE_JSON,
     TYPE_NULL, TYPE_OBJECT,
     TYPE_STRING,
-     TYPE_UINT16, TYPE_UINT32, TYPE_UINT64, TYPE_UINT8
+     TYPE_UINT16, TYPE_UINT32, TYPE_UINT64, TYPE_UINT8, TYPE_UUID
 } = Types;
 
 test("TypeHandler: bigint", () => {
@@ -192,4 +192,11 @@ test("TypeHandler: object/nested", () => {
     const encoded = Nytra.encode(value, TYPE_OBJECT);
     const decoded = Nytra.decode(encoded);
     expect(decoded).toEqual(value);
+})
+
+test("TypeHandler: UUID", () => {
+    const randomUUID = crypto.randomUUID();
+    const encoded = Nytra.encode(randomUUID, TYPE_UUID);
+    const decoded = Nytra.decode(encoded);
+    expect(decoded).toEqual(randomUUID);
 })

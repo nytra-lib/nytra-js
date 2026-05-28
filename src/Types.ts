@@ -6,6 +6,7 @@ export const
     TYPE_STRING_16_INTERNAL = 4,
     TYPE_STRING_32_INTERNAL = 5,
 
+    TYPE_UUID = 8,
     TYPE_JSON = 9,
 
     TYPE_UINT8 = 11,

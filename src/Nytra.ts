@@ -21,8 +21,9 @@ import {
     TYPE_UINT16,
     TYPE_UINT32,
     TYPE_UINT64,
-    TYPE_UINT8
+    TYPE_UINT8, TYPE_UUID
 } from "./Types.ts";
+import {UUID} from "./UUID.ts";
 
 
 const MAX_UINT_32 = 2 ** 32;
@@ -431,6 +432,15 @@ export class Nytra {
         }
 
         switch (type) {
+            case TYPE_UUID:
+                const bytes = UUID.toUint8Array(data as string);
+                if(withType) {
+                    writer.writeType(TYPE_UUID);
+                }
+                writer.writeBytes(bytes);
+                return writer.toUint8Array();
+
+
             case TYPE_NULL:
                 writer.writeUINT8(TYPE_NULL);
                 return writer.toUint8Array();
@@ -596,6 +606,9 @@ export class Nytra {
 
 
         switch (type) {
+            case TYPE_UUID:
+                const bytes = reader.readBytes(16);
+                return UUID.toString(bytes);
             case TYPE_STRING_16_INTERNAL: {
                 const length = reader.readUINT16();
                 return reader.readString(length);
